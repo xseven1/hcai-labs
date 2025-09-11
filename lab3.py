@@ -8,6 +8,7 @@ def keep_last_n_messages(messages, n=2):
     other_msgs = [m for m in messages if m not in system_msgs]
     return system_msgs + other_msgs[-2*n:]
 
+
 # Show title
 st.title("📄 LAB 3 – Chatbot")
 
@@ -33,13 +34,13 @@ if 'messages' not in st.session_state:
     ]
 if "awaiting_more_info" not in st.session_state:
     st.session_state.awaiting_more_info = False
-if "already_offered_more_info" not in st.session_state:
-    st.session_state.already_offered_more_info = False
+
 
 # Show past messages
 for msg in st.session_state.messages:
     chat_msg = st.chat_message(msg["role"])
     chat_msg.write(msg["content"])
+
 
 # Chat loop
 if prompt := st.chat_input("Type here..."):
@@ -49,7 +50,7 @@ if prompt := st.chat_input("Type here..."):
 
     client = st.session_state.client
 
-    # Case 1: User answers "DO YOU WANT MORE INFO"
+    # Case 1: User is in "more info" loop
     if st.session_state.awaiting_more_info:
         if prompt.strip().lower() in ["yes", "y", "sure", "ok"]:
             stream = client.chat.completions.create(
@@ -71,13 +72,18 @@ if prompt := st.chat_input("Type here..."):
                     response_placeholder.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # After either yes/no → reset flow
-        reset_msg = "What question can I help with?"
-        with st.chat_message("assistant"):
-            st.write(reset_msg)
-        st.session_state.messages.append({"role": "assistant", "content": reset_msg})
-        st.session_state.awaiting_more_info = False
-        st.session_state.already_offered_more_info = False
+            # Ask again
+            followup = "Would you like more information?"
+            with st.chat_message("assistant"):
+                st.write(followup)
+            st.session_state.messages.append({"role": "assistant", "content": followup})
+
+        elif prompt.strip().lower() in ["no", "n", "nope"]:
+            reset_msg = "What question can I help with?"
+            with st.chat_message("assistant"):
+                st.write(reset_msg)
+            st.session_state.messages.append({"role": "assistant", "content": reset_msg})
+            st.session_state.awaiting_more_info = False
 
     # Case 2: Normal Q&A
     else:
@@ -104,11 +110,9 @@ if prompt := st.chat_input("Type here..."):
 
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # Offer "DO YOU WANT MORE INFO" once
-        if not st.session_state.already_offered_more_info:
-            followup = "Would you like more information?"
-            with st.chat_message("assistant"):
-                st.write(followup)
-            st.session_state.messages.append({"role": "assistant", "content": followup})
-            st.session_state.awaiting_more_info = True
-            st.session_state.already_offered_more_info = True
+        # Always enter info loop
+        followup = "Would you like more information?"
+        with st.chat_message("assistant"):
+            st.write(followup)
+        st.session_state.messages.append({"role": "assistant", "content": followup})
+        st.session_state.awaiting_more_info = True
