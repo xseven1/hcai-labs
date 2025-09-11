@@ -1,2 +1,7 @@
 streamlit
+requests
+beautifulsoup4
 openai
+google-generativeai
+anthropic
+PyMuPDF
