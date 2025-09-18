@@ -13,7 +13,7 @@ with st.sidebar:
     lab3 = st.Page("lab3.py", title="LAB 3", icon=":material/arrow_outward:")
     lab4 = st.Page("lab4.py", title="LAB 4", icon=":material/arrow_outward:")
 
-    pg = st.navigation([lab1, lab2, lab4])
+    pg = st.navigation([lab1, lab2, lab3, lab4])
 
 # Now run the selected page
 pg.run()
