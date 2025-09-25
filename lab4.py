@@ -19,7 +19,7 @@ openAI_model = st.sidebar.selectbox("Which Model?", ("mini", "regular"), key="mo
 if openAI_model == "mini":
     model_to_use = "gpt-4o-mini"
 else:
-    model_to_use = "gpt-4o"
+    model_to_use = "gpt-5-nano"
 
 if "openai_client" not in st.session_state:
     api_key = st.secrets["openai_api_key"]
