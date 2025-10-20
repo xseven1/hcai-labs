@@ -5,7 +5,11 @@ openai
 google-generativeai
 anthropic
 PyMuPDF
-chromadb
+chromadb==0.4.24
 pysqlite3-binary
 PyPDF2
-protobuf==3.20a
+protobuf>=3.20
+setuptools
+wheel
+numpy
+langchain==0.1.17
