@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-🎯 LangChain Research Paper Agent – Streamlit Executable (No QA Retrieval Chain)
-Run with: streamlit run hw6.py
-"""
-
 import sys, re, streamlit as st, pandas as pd, os
 import pysqlite3
 sys.modules["sqlite3"] = pysqlite3
@@ -26,7 +18,7 @@ from langchain.agents import create_react_agent, AgentExecutor
 from langchain import hub
 
 
-# ----------------------- VECTORSTORE SETUP -----------------------
+# VECTORSTORE SETUP
 
 @st.cache_resource
 def initialize_vectorstore():
@@ -37,10 +29,10 @@ def initialize_vectorstore():
     os.makedirs(PERSIST_DIR, exist_ok=True)
 
     if not os.path.exists(CSV_PATH):
-        st.error(f"❌ CSV file not found at {CSV_PATH}")
+        st.error(f"CSV file not found at {CSV_PATH}")
         st.stop()
 
-    with st.spinner("🔧 Building or loading vector database..."):
+    with st.spinner("Building or loading vector database..."):
         df = pd.read_csv(CSV_PATH)
 
         docs = []
@@ -70,19 +62,19 @@ def initialize_vectorstore():
                 persist_directory=PERSIST_DIR,
                 embedding_function=embeddings
             )
-            st.success(f"✅ Loaded {len(docs)} papers from existing DB")
+            st.success(f"Loaded {len(docs)} papers from existing DB")
         else:
             vectorstore = Chroma.from_documents(
                 docs,
                 embeddings,
                 persist_directory=PERSIST_DIR
             )
-            st.success(f"✅ Indexed {len(docs)} papers and saved DB")
+            st.success(f"Indexed {len(docs)} papers and saved DB")
 
         return vectorstore, df
 
 
-# ----------------------- MAIN APP START -----------------------
+# MAIN APP START
 
 st.set_page_config(page_title="LangChain Research Paper Agent", page_icon="🎯")
 st.title("🎯 LangChain Research Paper Agent")
@@ -95,7 +87,7 @@ for key in ["hw6_vectorstore", "hw6_agent", "hw6_df", "hw6_messages"]:
 
 # Sidebar controls
 with st.sidebar:
-    st.header("⚙ Settings")
+    st.header("Settings")
     model = st.selectbox("Choose Model", ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"], key="model")
 
     if st.session_state.hw6_df is not None:
@@ -124,7 +116,7 @@ llm = ChatOpenAI(
 )
 
 
-# ----------------------- TOOL FUNCTIONS -----------------------
+# TOOL FUNCTIONS
 
 def search_papers(query: str) -> str:
     results = st.session_state.hw6_vectorstore.similarity_search(query, k=10)
@@ -166,7 +158,7 @@ def compare_papers(query: str) -> str:
     return f"## Paper 1\n{p1}\n\n## Paper 2\n{p2}"
 
 
-# ----------------------- AGENT SETUP -----------------------
+# AGENT SETUP
 
 tools = [
     Tool(name="SearchPapers", func=search_papers, description="Find research papers on a topic"),
@@ -189,13 +181,13 @@ if st.session_state.hw6_agent is None:
             verbose=True,
             handle_parsing_errors=True
         )
-        st.success("🤖 Agent ready!")
+        st.success("Agent ready!")
     except Exception as e:
         st.error(f"Agent initialization error: {e}")
         st.stop()
 
 
-# ----------------------- CHAT INTERFACE -----------------------
+# CHAT INTERFACE
 
 for msg in st.session_state.hw6_messages:
     with st.chat_message(msg["role"]):
@@ -217,9 +209,3 @@ if user_input := st.chat_input("💬 Ask about research papers..."):
                 output = f"Error: {e}"
         st.session_state.hw6_messages.append({"role": "assistant", "content": output})
         st.markdown(output)
-
-
-# ----------------------- ENTRY POINT -----------------------
-
-if __name__ == "__main__":
-    st.write("✅ App launched successfully — ready for input.")
